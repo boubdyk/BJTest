@@ -18,7 +18,8 @@ public class ECard {
     @Column(name = "name")
     private String name;
 
-
+    @ManyToOne
+    private EGame game;
 
     public ECard(){}
 

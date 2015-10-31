@@ -1,11 +1,9 @@
 package bs.bj;
 
+import bs.bj.entity.ECard;
 import bs.bj.logic.Card;
 import bs.bj.logic.Deck;
-import bs.bj.service.ActionService;
-import bs.bj.service.CardService;
-import bs.bj.service.HistoryService;
-import bs.bj.service.PlayerService;
+import bs.bj.service.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -18,6 +16,7 @@ public class Test {
     private static ActionService actionService;
     private static PlayerService playerService;
     private static HistoryService historyService;
+    private static GameService gameService;
 
     static {
         context = new ClassPathXmlApplicationContext("META-INF/beans.xml");
@@ -25,6 +24,7 @@ public class Test {
         actionService = context.getBean(ActionService.class);
         playerService = context.getBean(PlayerService.class);
         historyService = context.getBean(HistoryService.class);
+        gameService = context.getBean(GameService.class);
     }
 
     public void insertIntoCardTable() {
@@ -57,8 +57,14 @@ public class Test {
 
     public void makeBet() {
         System.out.println("Players balance before bet = " + playerService.getBalance(5000));
-        System.out.println(historyService.makeBet(5000, 400));
+        System.out.println(historyService.makeBet(5000, 1));
         System.out.println("Players balance after bet = " + playerService.getBalance(5000));
+    }
+
+    public void getDeck() {
+        for (Integer cardId: gameService.getDeck(9000)) {
+            System.out.println(cardId);
+        }
     }
 
     public static void main(String[] args) {
@@ -67,5 +73,6 @@ public class Test {
 //        test.addNewPlayer();
 //        test.modifyBalance();
         test.makeBet();
+        test.getDeck();
     }
 }

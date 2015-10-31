@@ -2,6 +2,7 @@ package bs.bj.entity;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by boubdyk on 30.10.2015.
@@ -43,6 +44,12 @@ public class EGame {
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "player_id")
 //    private EPlayer ePlayer;
+
+//    @ElementCollection
+    @OneToMany(mappedBy = "game")
+//    @JoinTable(name = "CARD")
+    private List<Integer> deck;
+
 
     public EGame(){}
 
@@ -110,19 +117,11 @@ public class EGame {
         this.price = price;
     }
 
-//    public List<EHistory> getHistory() {
-//        return history;
-//    }
-//
-//    public void setHistory(List<EHistory> history) {
-//        this.history = history;
-//    }
-//
-//    public EPlayer getePlayer() {
-//        return ePlayer;
-//    }
-//
-//    public void setePlayer(EPlayer ePlayer) {
-//        this.ePlayer = ePlayer;
-//    }
+    public List<Integer> getDeck() {
+        return deck;
+    }
+
+    public void setDeck(List<Integer> deck) {
+        this.deck = deck;
+    }
 }

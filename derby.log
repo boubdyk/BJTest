@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
-Sat Oct 31 23:00:21 EET 2015:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0150-bfb3-77be-000006ece9d8 
+Sun Nov 01 01:52:19 EET 2015:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0150-c050-e72a-000006d9ca30 
 on database directory D:\BlackjackDB with class loader sun.misc.Launcher$AppClassLoader@24d46ca6 
 Loaded from file:/C:/Users/boubdyk/.m2/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
 java.vendor=Oracle Corporation
