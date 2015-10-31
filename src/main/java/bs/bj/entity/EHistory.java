@@ -33,8 +33,10 @@ public class EHistory {
     @Column(name = "card_weight")
     private Integer cardWeight;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
     private EGame eGame;
+    
 
     public EHistory(){}
 
@@ -92,5 +94,13 @@ public class EHistory {
 
     public void setCardWeight(Integer cardWeight) {
         this.cardWeight = cardWeight;
+    }
+
+    public EGame geteGame() {
+        return eGame;
+    }
+
+    public void seteGame(EGame eGame) {
+        this.eGame = eGame;
     }
 }

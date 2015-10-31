@@ -38,10 +38,11 @@ public class EGame {
     @Column(name = "price")
     private Integer price;
 
-    @OneToMany(mappedBy = "eGame")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "eGame")
     private List<EHistory> history;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
     private EPlayer ePlayer;
 
     public EGame(){}
@@ -86,19 +87,19 @@ public class EGame {
         this.winnerId = winnerId;
     }
 
-    public int getPlayerScore() {
+    public Integer getPlayerScore() {
         return playerScore;
     }
 
-    public void setPlayerScore(int playerScore) {
+    public void setPlayerScore(Integer playerScore) {
         this.playerScore = playerScore;
     }
 
-    public int getDealerScore() {
+    public Integer getDealerScore() {
         return dealerScore;
     }
 
-    public void setDealerScore(int dealerScore) {
+    public void setDealerScore(Integer dealerScore) {
         this.dealerScore = dealerScore;
     }
 
@@ -108,5 +109,21 @@ public class EGame {
 
     public void setPrice(Integer price) {
         this.price = price;
+    }
+
+    public List<EHistory> getHistory() {
+        return history;
+    }
+
+    public void setHistory(List<EHistory> history) {
+        this.history = history;
+    }
+
+    public EPlayer getePlayer() {
+        return ePlayer;
+    }
+
+    public void setePlayer(EPlayer ePlayer) {
+        this.ePlayer = ePlayer;
     }
 }
