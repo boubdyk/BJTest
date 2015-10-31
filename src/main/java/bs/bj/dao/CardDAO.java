@@ -12,6 +12,7 @@ import javax.persistence.PersistenceContext;
  */
 
 @Named
+//@Repository
 public class CardDAO implements GenericDAO<ECard, Integer>{
 
     @PersistenceContext(unitName = "entityManager")
@@ -31,12 +32,13 @@ public class CardDAO implements GenericDAO<ECard, Integer>{
     }
 
     @Override
-    public ECard update(ECard transientObjectID) {
+    public ECard update(ECard transientObject) {
         return null;
     }
 
     @Override
-    public boolean delete(Integer persistentObject) {
-        return false;
+    public boolean delete(Integer persistentObjectID) {
+        entityManager.remove(read(persistentObjectID));
+        return read(persistentObjectID) == null ? true : false;
     }
 }

@@ -9,7 +9,6 @@ import java.util.*;
 
 public class Deck {
 
-    @Embedded
     private List<Card> cards;
 
     public Deck() {

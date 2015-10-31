@@ -2,12 +2,15 @@ package bs.bj.dao;
 
 import bs.bj.entity.EHistory;
 
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 /**
  * Created by boubdyk on 30.10.2015.
  */
+
+@Named
 public class HistoryDAO implements GenericDAO<EHistory, Integer> {
 
     @PersistenceContext(unitName = "entityManager")

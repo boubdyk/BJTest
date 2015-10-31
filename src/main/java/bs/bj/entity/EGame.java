@@ -2,7 +2,6 @@ package bs.bj.entity;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by boubdyk on 30.10.2015.
@@ -13,7 +12,7 @@ import java.util.List;
 public class EGame {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private Integer id;
 
@@ -26,8 +25,8 @@ public class EGame {
     @Column(name = "date_finish")
     private Date dateFinish;
 
-    @Column(name = "winner_id")
-    private Long winnerId;
+    @Column(name = "winner")
+    private String winner;
 
     @Column(name = "player_score")
     private Integer playerScore;
@@ -37,13 +36,13 @@ public class EGame {
 
     @Column(name = "price")
     private Integer price;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "eGame")
-    private List<EHistory> history;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
-    private EPlayer ePlayer;
+//
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "eGame")
+//    private List<EHistory> history;
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "player_id")
+//    private EPlayer ePlayer;
 
     public EGame(){}
 
@@ -79,12 +78,12 @@ public class EGame {
         this.dateFinish = dateFinish;
     }
 
-    public Long getWinnerId() {
-        return winnerId;
+    public String getWinner() {
+        return winner;
     }
 
-    public void setWinnerId(Long winnerId) {
-        this.winnerId = winnerId;
+    public void setWinner(String winner) {
+        this.winner = winner;
     }
 
     public Integer getPlayerScore() {
@@ -111,19 +110,19 @@ public class EGame {
         this.price = price;
     }
 
-    public List<EHistory> getHistory() {
-        return history;
-    }
-
-    public void setHistory(List<EHistory> history) {
-        this.history = history;
-    }
-
-    public EPlayer getePlayer() {
-        return ePlayer;
-    }
-
-    public void setePlayer(EPlayer ePlayer) {
-        this.ePlayer = ePlayer;
-    }
+//    public List<EHistory> getHistory() {
+//        return history;
+//    }
+//
+//    public void setHistory(List<EHistory> history) {
+//        this.history = history;
+//    }
+//
+//    public EPlayer getePlayer() {
+//        return ePlayer;
+//    }
+//
+//    public void setePlayer(EPlayer ePlayer) {
+//        this.ePlayer = ePlayer;
+//    }
 }

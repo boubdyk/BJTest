@@ -3,12 +3,15 @@ package bs.bj.dao;
 import bs.bj.entity.EGame;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 /**
  * Created by boubdyk on 30.10.2015.
  */
+
+@Named
 public class GameDAO implements GenericDAO<EGame, Integer> {
 
     @PersistenceContext(unitName = "entityManager")

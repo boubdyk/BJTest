@@ -11,7 +11,7 @@ import javax.persistence.*;
 public class EHistory {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private Integer id;
 
@@ -33,9 +33,9 @@ public class EHistory {
     @Column(name = "card_weight")
     private Integer cardWeight;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
-    private EGame eGame;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "id")
+//    private EGame eGame;
     
 
     public EHistory(){}
@@ -96,11 +96,11 @@ public class EHistory {
         this.cardWeight = cardWeight;
     }
 
-    public EGame geteGame() {
-        return eGame;
-    }
-
-    public void seteGame(EGame eGame) {
-        this.eGame = eGame;
-    }
+//    public EGame geteGame() {
+//        return eGame;
+//    }
+//
+//    public void seteGame(EGame eGame) {
+//        this.eGame = eGame;
+//    }
 }

@@ -2,12 +2,15 @@ package bs.bj.dao;
 
 import bs.bj.entity.EPlayer;
 
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 /**
  * Created by boubdyk on 30.10.2015.
  */
+
+@Named
 public class PlayerDAO implements GenericDAO<EPlayer, Integer> {
 
     @PersistenceContext(unitName = "entityManager")
