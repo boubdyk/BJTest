@@ -2,6 +2,7 @@ package bs.bj.entity;
 
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by boubdyk on 30.10.2015.
@@ -14,26 +15,29 @@ public class EPlayer {
     @Id
     @GeneratedValue
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "balance")
-    private Long balance;
+    private Integer balance;
+
+    @OneToMany(mappedBy = "ePlayer")
+    private List<EGame> eGames;
 
     public EPlayer(){}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getBalance() {
+    public Integer getBalance() {
         return balance;
     }
 
-    public void setBalance(Long balance) {
+    public void setBalance(Integer balance) {
         this.balance = balance;
     }
 }

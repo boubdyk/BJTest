@@ -18,6 +18,8 @@ public class ECard {
     @Column(name = "name")
     private String name;
 
+
+
     public ECard(){}
 
     public Integer getId() {

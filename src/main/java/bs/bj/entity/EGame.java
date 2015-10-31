@@ -2,6 +2,7 @@ package bs.bj.entity;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by boubdyk on 30.10.2015.
@@ -14,10 +15,10 @@ public class EGame {
     @Id
     @GeneratedValue
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "player_id")
-    private Long playerId;
+    private Integer playerId;
 
     @Column(name = "date_start")
     private Date dateStart;
@@ -29,29 +30,35 @@ public class EGame {
     private Long winnerId;
 
     @Column(name = "player_score")
-    private int playerScore;
+    private Integer playerScore;
 
     @Column(name = "dealer_score")
-    private int dealerScore;
+    private Integer dealerScore;
 
     @Column(name = "price")
-    private Long price;
+    private Integer price;
+
+    @OneToMany(mappedBy = "eGame")
+    private List<EHistory> history;
+
+    @ManyToOne
+    private EPlayer ePlayer;
 
     public EGame(){}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getPlayerId() {
+    public Integer getPlayerId() {
         return playerId;
     }
 
-    public void setPlayerId(Long playerId) {
+    public void setPlayerId(Integer playerId) {
         this.playerId = playerId;
     }
 
@@ -95,11 +102,11 @@ public class EGame {
         this.dealerScore = dealerScore;
     }
 
-    public Long getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Long price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 }

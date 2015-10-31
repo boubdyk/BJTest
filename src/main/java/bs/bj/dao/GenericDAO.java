@@ -17,5 +17,5 @@ public interface GenericDAO <T, PK extends Serializable>{
     T update(T transientObject);
 
     //Delete object from DataBase
-    boolean delete(PK persistentObject);
+    boolean delete(PK persistentObjectID);
 }

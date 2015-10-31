@@ -31,7 +31,7 @@ public class CardDAO implements GenericDAO<ECard, Integer>{
     }
 
     @Override
-    public ECard update(ECard transientObject) {
+    public ECard update(ECard transientObjectID) {
         return null;
     }
 

@@ -13,81 +13,84 @@ public class EHistory {
     @Id
     @GeneratedValue
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "action_id")
-    private Long actionId;
+    private Integer actionId;
 
     @Column(name = "player_id")
-    private Long playerId;
+    private Integer playerId;
 
     @Column(name = "card_id")
-    private Long cardId;
+    private Integer cardId;
 
     @Column(name = "bet")
-    private Long bet;
+    private Integer bet;
 
     @Column(name = "game_id")
-    private Long gameId;
+    private Integer gameId;
 
     @Column(name = "card_weight")
-    private Long cardWeight;
+    private Integer cardWeight;
+
+    @ManyToOne
+    private EGame eGame;
 
     public EHistory(){}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getActionId() {
+    public Integer getActionId() {
         return actionId;
     }
 
-    public void setActionId(Long actionId) {
+    public void setActionId(Integer actionId) {
         this.actionId = actionId;
     }
 
-    public Long getPlayerId() {
+    public Integer getPlayerId() {
         return playerId;
     }
 
-    public void setPlayerId(Long playerId) {
+    public void setPlayerId(Integer playerId) {
         this.playerId = playerId;
     }
 
-    public Long getCardId() {
+    public Integer getCardId() {
         return cardId;
     }
 
-    public void setCardId(Long cardId) {
+    public void setCardId(Integer cardId) {
         this.cardId = cardId;
     }
 
-    public Long getBet() {
+    public Integer getBet() {
         return bet;
     }
 
-    public void setBet(Long bet) {
+    public void setBet(Integer bet) {
         this.bet = bet;
     }
 
-    public Long getGameId() {
+    public Integer getGameId() {
         return gameId;
     }
 
-    public void setGameId(Long gameId) {
+    public void setGameId(Integer gameId) {
         this.gameId = gameId;
     }
 
-    public Long getCardWeight() {
+    public Integer getCardWeight() {
         return cardWeight;
     }
 
-    public void setCardWeight(Long cardWeight) {
+    public void setCardWeight(Integer cardWeight) {
         this.cardWeight = cardWeight;
     }
 }
