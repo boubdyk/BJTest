@@ -45,10 +45,10 @@ public class EGame {
 //    @JoinColumn(name = "player_id")
 //    private EPlayer ePlayer;
 
-//    @ElementCollection
-    @OneToMany(mappedBy = "game")
-//    @JoinTable(name = "CARD")
-    private List<Integer> deck;
+////    @ElementCollection
+//    @OneToMany(mappedBy = "game")
+////    @JoinTable(name = "CARD")
+//    private List<Integer> deck;
 
 
     public EGame(){}
@@ -117,11 +117,11 @@ public class EGame {
         this.price = price;
     }
 
-    public List<Integer> getDeck() {
-        return deck;
-    }
-
-    public void setDeck(List<Integer> deck) {
-        this.deck = deck;
-    }
+//    public List<Integer> getDeck() {
+//        return deck;
+//    }
+//
+//    public void setDeck(List<Integer> deck) {
+//        this.deck = deck;
+//    }
 }

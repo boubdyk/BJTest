@@ -20,10 +20,11 @@ public class EPlayer {
     @Column(name = "balance")
     private Integer balance;
 
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "ePlayer")
-//    private List<EGame> eGames;
-
     public EPlayer(){}
+
+    public EPlayer(Integer balance) {
+        this.balance = balance;
+    }
 
     public Integer getId() {
         return id;
@@ -41,11 +42,4 @@ public class EPlayer {
         this.balance = balance;
     }
 
-//    public List<EGame> geteGames() {
-//        return eGames;
-//    }
-//
-//    public void seteGames(List<EGame> eGames) {
-//        this.eGames = eGames;
-//    }
 }

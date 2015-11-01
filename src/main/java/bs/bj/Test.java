@@ -1,6 +1,5 @@
 package bs.bj;
 
-import bs.bj.entity.ECard;
 import bs.bj.logic.Card;
 import bs.bj.logic.Deck;
 import bs.bj.service.*;
@@ -12,7 +11,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class Test {
     private static ApplicationContext context;
-    private static CardService cardService;
     private static ActionService actionService;
     private static PlayerService playerService;
     private static HistoryService historyService;
@@ -20,20 +18,13 @@ public class Test {
 
     static {
         context = new ClassPathXmlApplicationContext("META-INF/beans.xml");
-        cardService = context.getBean(CardService.class);
         actionService = context.getBean(ActionService.class);
         playerService = context.getBean(PlayerService.class);
         historyService = context.getBean(HistoryService.class);
         gameService = context.getBean(GameService.class);
     }
 
-    public void insertIntoCardTable() {
-        Deck deck = new Deck();
-        deck.createDeck();
-        for (int i = 0; i < deck.deckSize(); i++) {
-            cardService.addCard(deck.getCard(i).toString());
-        }
-    }
+
 
     public void insertIntoActionTable() {
         actionService.addAction("BET", "Make a bet");
@@ -56,23 +47,26 @@ public class Test {
     }
 
     public void makeBet() {
-        System.out.println("Players balance before bet = " + playerService.getBalance(5000));
-        System.out.println(historyService.makeBet(5000, 1));
-        System.out.println("Players balance after bet = " + playerService.getBalance(5000));
+        System.out.println("Players balance before bet = " + playerService.getBalance(13000));
+        System.out.println(historyService.makeBet(13000, 5));
+        System.out.println("Players balance after bet = " + playerService.getBalance(13000));
     }
 
-    public void getDeck() {
-        for (Integer cardId: gameService.getDeck(9000)) {
-            System.out.println(cardId);
-        }
+    public void addPlayer() {
+        gameService.registerPlayer(500);
     }
+
+    public void addBalance() {
+        System.out.println(gameService.addBalance(13000, 200));
+    }
+
+
 
     public static void main(String[] args) {
         Test test = new Test();
-//        test.insertIntoActionTable();
-//        test.addNewPlayer();
-//        test.modifyBalance();
-        test.makeBet();
-        test.getDeck();
+//        test.addPlayer(); id = 13000
+//        test.addBalance();
+//        test.makeBet();
+        gameService.drawCards(21000);
     }
 }

@@ -1,46 +1,43 @@
 package bs.bj.dao;
 
-import bs.bj.entity.EGame;
+import bs.bj.entity.EPlayersDeck;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.List;
 
 /**
- * Created by boubdyk on 30.10.2015.
+ * Created by boubdyk on 01.11.2015.
  */
 
 @Named
-public class GameDAO implements GenericDAO<EGame, Integer> {
+public class PlayersDeckDAO implements GenericDAO<EPlayersDeck, Integer> {
 
     @PersistenceContext(unitName = "entityManager")
     private EntityManager entityManager;
 
-    public GameDAO(){}
+    public PlayersDeckDAO() {}
 
     @Override
-    public Integer create(EGame newInstance) {
+    public Integer create(EPlayersDeck newInstance) {
         entityManager.persist(newInstance);
         return newInstance.getId();
     }
 
     @Override
-    public EGame read(Integer id) {
-        return entityManager.find(EGame.class, id);
+    public EPlayersDeck read(Integer id) {
+        return entityManager.find(EPlayersDeck.class, id);
     }
 
     @Override
-    public EGame update(EGame transientObject) {
+    public EPlayersDeck update(EPlayersDeck transientObject) {
         entityManager.merge(transientObject);
         return transientObject;
     }
 
     @Override
     public boolean delete(Integer persistentObjectID) {
-        entityManager.remove(persistentObjectID);
+        entityManager.remove(read(persistentObjectID));
         return read(persistentObjectID) == null ? true : false;
     }
-
 }
