@@ -86,6 +86,7 @@ public class PlayingDeckService {
     }
 
 
+    //Return card for player.
     public EPlayersDeck drawCardForPlayer(Integer gameId) {
         EPlayingDeck deck = playingDeckDAO.read(getCardId(gameId));
         EPlayersDeck ePlayersDeck = new EPlayersDeck(deck.getId(), deck.getCardSuit(), deck.getCardFace(), gameId);

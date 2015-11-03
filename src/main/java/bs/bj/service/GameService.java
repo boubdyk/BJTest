@@ -1,11 +1,17 @@
 package bs.bj.service;
 
+import bs.bj.dao.DealersDeckDAO;
 import bs.bj.dao.GameDAO;
 import bs.bj.dao.PlayerDAO;
+import bs.bj.dao.PlayersDeckDAO;
 import bs.bj.entity.EDealersDeck;
 import bs.bj.entity.EGame;
 import bs.bj.entity.EPlayer;
 import bs.bj.entity.EPlayersDeck;
+import bs.bj.logic.Card;
+import bs.bj.logic.Deck;
+import bs.bj.logic.Face;
+import bs.bj.logic.Suit;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -33,6 +39,13 @@ public class GameService {
 
     @Inject
     private PlayingDeckService playingDeckService;
+
+    @Inject
+    private PlayersDeckDAO playersDeckDAO;
+
+
+    @Inject
+    private DealersDeckDAO dealersDeckDAO;
 
     public GameService() {}
 
@@ -70,12 +83,52 @@ public class GameService {
         return gameId;
     }
 
-    //Draw first two cards for player and dealer.
+    //Draw first two cards for player and dealer. Set cards values.
     public Map<EPlayersDeck, EDealersDeck> drawCards(Integer gameId) {
         Map<EPlayersDeck, EDealersDeck> resultMap = new HashMap<EPlayersDeck, EDealersDeck>();
         resultMap.put(playingDeckService.drawCardForPlayer(gameId), playingDeckService.drawCardForDealer(gameId));
         resultMap.put(playingDeckService.drawCardForPlayer(gameId), playingDeckService.drawCardForDealer(gameId));
+        updateGame(gameId);
         return resultMap;
+    }
+
+    //This method is used to update 2 fields in table Game: playersScore and dealersScore.
+    private void updateGame(Integer gameId) {
+        EGame eGame = gameDAO.read(gameId);
+        eGame.setPlayerScore(playersDeckScore(gameId));
+        eGame.setDealerScore(dealersDeckScore(gameId));
+        gameDAO.update(eGame);
+    }
+
+    //If player Hits than draw card for him. Retorn Map of card and total cards value.
+    public Map<EPlayersDeck, Integer> drawCard(Integer gameId) {
+        if (gameId == null || gameDAO.read(gameId) == null) return null;
+        EPlayersDeck ePlayersDeck = playingDeckService.drawCardForPlayer(gameId);
+        Map<EPlayersDeck, Integer> resultMap = new HashMap<EPlayersDeck, Integer>();
+        resultMap.put(ePlayersDeck, playersDeckScore(gameId));
+        return resultMap;
+    }
+
+
+    //Used in two methods:
+    private Integer playersDeckScore(Integer gameId) {
+        Deck playersDeck = new Deck();
+        Card card;
+        for (EPlayersDeck playerCards: playersDeckDAO.getCards(gameId)) {
+            card = new Card(Suit.valueOf(playerCards.getCardSuit()), Face.valueOf(playerCards.getCardFace()));
+            playersDeck.addCard(card);
+        }
+        return playersDeck.cardsValue();
+    }
+
+    private Integer dealersDeckScore(Integer gameId) {
+        Deck dealersDeck = new Deck();
+        Card card;
+        for (EDealersDeck dealersCards: dealersDeckDAO.getCards(gameId)) {
+            card = new Card(Suit.valueOf(dealersCards.getCardSuit()), Face.valueOf(dealersCards.getCardFace()));
+            dealersDeck.addCard(card);
+        }
+        return dealersDeck.cardsValue();
     }
 
 }

@@ -5,6 +5,8 @@ import bs.bj.entity.EDealersDeck;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  * Created by boubdyk on 01.11.2015.
@@ -39,5 +41,12 @@ public class DealersDeckDAO implements GenericDAO<EDealersDeck, Integer> {
     public boolean delete(Integer persistentObjectID) {
         entityManager.remove(read(persistentObjectID));
         return read(persistentObjectID) == null ? true : false;
+    }
+
+    //Return List of dealers cards for current game round.
+    public List<EDealersDeck> getCards(Integer gameId) {
+        String query = "SELECT d FROM EDealersDeck d WHERE d.gameId=" + gameId;
+        TypedQuery<EDealersDeck> result = entityManager.createQuery(query, EDealersDeck.class);
+        return result.getResultList();
     }
 }

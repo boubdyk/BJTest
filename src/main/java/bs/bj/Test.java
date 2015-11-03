@@ -67,6 +67,6 @@ public class Test {
 //        test.addPlayer(); id = 13000
 //        test.addBalance();
 //        test.makeBet();
-        gameService.drawCards(21000);
+        gameService.drawCards(23000);
     }
 }
