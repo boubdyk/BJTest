@@ -49,10 +49,10 @@ public class GameService {
 
     public GameService() {}
 
-//    private boolean endRound(Integer playerId, Integer gameId) {
-//
-//    }
 
+    boolean isValidID(Integer gameId) {
+        return (gameId == null || gameDAO.read(gameId) == null) ? false : true;
+    }
 
     //Method invokes when user is not registered in DB. Set user balance and return user id.
     public Integer registerPlayer(Integer balance) {
@@ -100,12 +100,23 @@ public class GameService {
         gameDAO.update(eGame);
     }
 
-    //If player Hits than draw card for him. Retorn Map of card and total cards value.
-    public Map<EPlayersDeck, Integer> drawCard(Integer gameId) {
+
+    //If player Hits than draw card for him. Return Map of card and total cards value.
+    public Map<EPlayersDeck, Integer> drawCardForPlayer(Integer gameId) {
         if (gameId == null || gameDAO.read(gameId) == null) return null;
         EPlayersDeck ePlayersDeck = playingDeckService.drawCardForPlayer(gameId);
         Map<EPlayersDeck, Integer> resultMap = new HashMap<EPlayersDeck, Integer>();
         resultMap.put(ePlayersDeck, playersDeckScore(gameId));
+        return resultMap;
+    }
+
+
+    //If player stands than dealer draws card for himself. Return Map of card and total cards value.
+    public Map<EDealersDeck, Integer> drawCardForDealer(Integer gameId) {
+        if (!isValidID(gameId)) return null;
+        EDealersDeck eDealersDeck = playingDeckService.drawCardForDealer(gameId);
+        Map<EDealersDeck, Integer> resultMap = new HashMap<EDealersDeck, Integer>();
+        resultMap.put(eDealersDeck, dealersDeckScore(gameId));
         return resultMap;
     }
 

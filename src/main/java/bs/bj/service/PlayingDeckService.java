@@ -37,13 +37,13 @@ public class PlayingDeckService {
     @Inject
     private PlayersDeckDAO playersDeckDAO;
 
-    private boolean isValidID(Integer gameId) {
-        return (gameId == null || gameDAO.read(gameId) == null) ? false : true;
-    }
+    @Inject GameService gameService;
+
+
 
     //Creates new deck for each game round.
     public Deck createDeck(Integer gameId) {
-        if (!isValidID(gameId)) return null;
+        if (!gameService.isValidID(gameId)) return null;
         Deck deck = new Deck();
         deck.createDeck();
         deck.shuffle();
@@ -58,7 +58,7 @@ public class PlayingDeckService {
 
     //Getting playing deck of current game round.
     public Deck getPlayingDeck(Integer gameId) {
-        if (!isValidID(gameId)) return null;
+        if (!gameService.isValidID(gameId)) return null;
         List<EPlayingDeck> ePlayingDeck = playingDeckDAO.getDeck(gameId);
         Deck deck = new Deck();
         Card card;
@@ -71,7 +71,7 @@ public class PlayingDeckService {
 
     //This method is used in two methods: drawCardForDealer and drawCardForPlayer. Return card id.
     private Integer getCardId(Integer gameId) {
-        if (!isValidID(gameId)) return null;
+        if (!gameService.isValidID(gameId)) return null;
         Card card = getPlayingDeck(gameId).getCard(0);
         return playingDeckDAO.getCardID(gameId, card.getSuit().toString(), card.getFace().toString());
     }
