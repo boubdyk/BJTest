@@ -43,7 +43,7 @@ public class ActionDAO implements GenericDAO<EAction, Integer> {
 
     //Returns action id by action name.
     public Integer getID(String actionName) {
-        String query = "SELECT a.id FROM EAction a WHERE a.name=\'" + actionName + "\'";
+        String query = "SELECT a.id FROM EAction a WHERE a.description=\'" + actionName + "\'";
         TypedQuery<Integer> result = entityManager.createQuery(query, Integer.class);
         return result.getSingleResult();
     }

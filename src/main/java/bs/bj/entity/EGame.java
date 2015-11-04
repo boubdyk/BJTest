@@ -37,19 +37,6 @@ public class EGame {
 
     @Column(name = "price")
     private Integer price;
-//
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "eGame")
-//    private List<EHistory> history;
-//
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "player_id")
-//    private EPlayer ePlayer;
-
-////    @ElementCollection
-//    @OneToMany(mappedBy = "game")
-////    @JoinTable(name = "CARD")
-//    private List<Integer> deck;
-
 
     public EGame(){}
 
@@ -117,11 +104,4 @@ public class EGame {
         this.price = price;
     }
 
-//    public List<Integer> getDeck() {
-//        return deck;
-//    }
-//
-//    public void setDeck(List<Integer> deck) {
-//        this.deck = deck;
-//    }
 }

@@ -1,13 +1,7 @@
 package bs.bj.service;
 
-import bs.bj.dao.DealersDeckDAO;
-import bs.bj.dao.GameDAO;
-import bs.bj.dao.PlayerDAO;
-import bs.bj.dao.PlayersDeckDAO;
-import bs.bj.entity.EDealersDeck;
-import bs.bj.entity.EGame;
-import bs.bj.entity.EPlayer;
-import bs.bj.entity.EPlayersDeck;
+import bs.bj.dao.*;
+import bs.bj.entity.*;
 import bs.bj.logic.Card;
 import bs.bj.logic.Deck;
 import bs.bj.logic.Face;
@@ -43,9 +37,16 @@ public class GameService {
     @Inject
     private PlayersDeckDAO playersDeckDAO;
 
-
     @Inject
     private DealersDeckDAO dealersDeckDAO;
+
+    @Inject
+    private HistoryService historyService;
+
+    @Inject
+    private ActionDAO actionDAO;
+
+    @Inject HistoryDAO historyDAO;
 
     public GameService() {}
 
@@ -67,7 +68,24 @@ public class GameService {
         Integer newBalance = player.getBalance() + balance;
         player.setBalance(newBalance);
         playerDAO.update(player);
+        historyService.addHistory(playerId, null, actionDAO.getID(ActionEnum.MODIFY_BALANCE.toString()));
         return player.getBalance();
+    }
+
+    //Player make bet. Return true if bet is valid else return false. Returns new balance.
+    public Integer makeBet(Integer gameId, Integer playerID, Integer bet) {
+        if (playerID == null || bet == null || bet <= 0) return null;
+        EPlayer ePlayer = playerDAO.read(playerID);
+        if (ePlayer == null || ePlayer.getBalance() < bet) return null;
+        ePlayer.setBalance(ePlayer.getBalance() - bet);
+        playerDAO.update(ePlayer);
+        EHistory eHistory = new EHistory();
+        eHistory.setPlayerId(playerID);
+        eHistory.setBet(bet);
+        eHistory.setActionId(actionDAO.getID(ActionEnum.BET.toString()));
+        eHistory.setGameId(gameId);
+        historyDAO.create(eHistory);
+        return ePlayer.getBalance();
     }
 
     //Executes when new game round start. Return gameId.
@@ -77,8 +95,7 @@ public class GameService {
         if (ePlayer == null) return null;
         EGame newGame = new EGame();
         newGame.setPlayerId(ePlayer.getId());
-        Date date = new Date();
-        newGame.setDateStart(date);
+        newGame.setDateStart(new Date());
         Integer gameId = gameDAO.create(newGame);
         playingDeckService.createDeck(gameId);
         return gameId;
@@ -94,36 +111,39 @@ public class GameService {
     }
 
     //This method is used to update 2 fields in table Game: playersScore and dealersScore.
-    private void updateGame(Integer gameId) {
+    private Map<Integer, Integer> updateGame(Integer gameId) {
         EGame eGame = gameDAO.read(gameId);
         eGame.setPlayerScore(playersDeckScore(gameId));
         eGame.setDealerScore(dealersDeckScore(gameId));
         gameDAO.update(eGame);
+        return new HashMap<Integer, Integer>(eGame.getPlayerScore(), eGame.getDealerScore());
     }
 
 
     //If player Hits than draw card for him. Return Map of card and total cards value.
-    public Map<EPlayersDeck, Integer> drawCardForPlayer(Integer gameId) {
+    public Map<EPlayersDeck, Integer> drawCardForPlayer(Integer gameId, Integer playerId) {
         if (gameId == null || gameDAO.read(gameId) == null) return null;
         EPlayersDeck ePlayersDeck = playingDeckService.drawCardForPlayer(gameId);
         Map<EPlayersDeck, Integer> resultMap = new HashMap<EPlayersDeck, Integer>();
         resultMap.put(ePlayersDeck, playersDeckScore(gameId));
+        historyService.addHistory(playerId, gameId, actionDAO.getID(ActionEnum.HIT.toString()));
         return resultMap;
     }
 
 
     //If player stands than dealer draws card for himself. Return Map of card and total cards value.
-    public Map<EDealersDeck, Integer> drawCardForDealer(Integer gameId) {
+    public Map<EDealersDeck, Integer> drawCardForDealer(Integer gameId, Integer playerId) {
         if (!isValidID(gameId)) return null;
         EDealersDeck eDealersDeck = playingDeckService.drawCardForDealer(gameId);
         Map<EDealersDeck, Integer> resultMap = new HashMap<EDealersDeck, Integer>();
         resultMap.put(eDealersDeck, dealersDeckScore(gameId));
+        historyService.addHistory(playerId, gameId, actionDAO.getID(ActionEnum.STAND.toString()));
         return resultMap;
     }
 
 
     //Used in two methods:
-    private Integer playersDeckScore(Integer gameId) {
+    public Integer playersDeckScore(Integer gameId) {
         Deck playersDeck = new Deck();
         Card card;
         for (EPlayersDeck playerCards: playersDeckDAO.getCards(gameId)) {
@@ -133,7 +153,7 @@ public class GameService {
         return playersDeck.cardsValue();
     }
 
-    private Integer dealersDeckScore(Integer gameId) {
+    public Integer dealersDeckScore(Integer gameId) {
         Deck dealersDeck = new Deck();
         Card card;
         for (EDealersDeck dealersCards: dealersDeckDAO.getCards(gameId)) {
@@ -143,4 +163,43 @@ public class GameService {
         return dealersDeck.cardsValue();
     }
 
+
+
+    public String gameRfoundResult(Integer gameId, Integer playerId, Integer bet) {
+        String result;
+        EGame eGame;
+        if (dealersDeckScore(gameId) > playersDeckScore(gameId)) {
+            result = ActionEnum.BUSTED.toString();
+            historyService.addHistory(playerId, gameId, actionDAO.getID(result));
+            eGame = gameDAO.read(gameId);
+            eGame.setPrice(0);
+            eGame.setWinner("DEALER");
+            eGame.setDateFinish(new Date());
+            return result;
+        } else if (dealersDeckScore(gameId) < playersDeckScore(gameId)) {
+            result = ActionEnum.WIN.toString();
+            historyService.addHistory(playerId, gameId, actionDAO.getID(result));
+            eGame = gameDAO.read(gameId);
+            int price = bet * 2;
+            eGame.setPrice(price);
+            addBalance(playerId, price);
+            eGame.setWinner("PLAYER");
+            eGame.setDateFinish(new Date());
+            return result;
+        } else if (dealersDeckScore(gameId) == playersDeckScore(gameId)) {
+            result = ActionEnum.PUSH.toString();
+            historyService.addHistory(playerId, gameId, actionDAO.getID(result));
+            eGame = gameDAO.read(gameId);
+            eGame.setPrice(bet);
+            addBalance(playerId, bet);
+            eGame.setWinner("PUSH");
+            eGame.setDateFinish(new Date());
+            return result;
+        }
+        return null;
+    }
+
+    public String checkingForBlackjack(Integer gameId, ) {
+
+    }
 }

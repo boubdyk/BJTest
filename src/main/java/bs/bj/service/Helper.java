@@ -1,10 +1,17 @@
 package bs.bj.service;
 
+import bs.bj.entity.EDealersDeck;
+import bs.bj.entity.EPlayersDeck;
+import bs.bj.logic.Card;
+import bs.bj.logic.Face;
+import bs.bj.logic.Suit;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import javax.inject.Named;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -30,5 +37,20 @@ public class Helper {
             pe.printStackTrace();
             return null;
         }
+    }
+
+    public JSONArray parseCardsToJSON(Map<EPlayersDeck, EDealersDeck> map) {
+        JSONObject jsonCardItem;
+        Card card;
+        JSONArray returnJsonArray = new JSONArray();
+        for (Map.Entry<EPlayersDeck, EDealersDeck> entry: map.entrySet()) {
+            jsonCardItem = new JSONObject();
+            card = new Card(Suit.valueOf(entry.getKey().getCardSuit().toString()), Face.valueOf(entry.getKey().getCardFace().toString()));
+            jsonCardItem.put("playersCard", card);
+            card = new Card(Suit.valueOf(entry.getValue().getCardSuit().toString()), Face.valueOf(entry.getValue().getCardFace().toString()));
+            jsonCardItem.put("dealersCard", card);
+            returnJsonArray.add(jsonCardItem);
+        }
+        return returnJsonArray;
     }
 }

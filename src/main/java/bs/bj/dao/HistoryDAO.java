@@ -40,4 +40,6 @@ public class HistoryDAO implements GenericDAO<EHistory, Integer> {
         entityManager.remove(persistentObjectID);
         return read(persistentObjectID) == null ? true : false;
     }
+
+
 }

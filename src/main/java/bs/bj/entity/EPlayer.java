@@ -9,7 +9,7 @@ import java.util.List;
  */
 
 @Entity
-@Table(name = "Player")
+@Table(name = "PLAYER")
 public class EPlayer {
 
     @Id

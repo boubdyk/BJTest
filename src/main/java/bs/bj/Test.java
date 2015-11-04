@@ -29,14 +29,14 @@ public class Test {
 
 
 
-    public void insertIntoActionTable() {
-        actionService.addAction("BET", "Make a bet");
-        actionService.addAction("HIT", "Draw one more card");
-        actionService.addAction("STAND", "Finish current hand");
-        actionService.addAction("BUST", "You lose tha hand");
-        actionService.addAction("WIN", "You win the hand");
-        actionService.addAction("PUSH", "You have the same score as dealer");
-    }
+//    public void insertIntoActionTable() {
+//        actionService.addAction("BET", "Make a bet");
+//        actionService.addAction("HIT", "Draw one more card");
+//        actionService.addAction("STAND", "Finish current hand");
+//        actionService.addAction("BUST", "You lose tha hand");
+//        actionService.addAction("WIN", "You win the hand");
+//        actionService.addAction("PUSH", "You have the same score as dealer");
+//    }
 
     public void addNewPlayer() {
         playerService.addPlayer(200);
@@ -49,11 +49,7 @@ public class Test {
         System.out.println(playerService.modifyBalance(500, -500));
     }
 
-    public void makeBet() {
-        System.out.println("Players balance before bet = " + playerService.getBalance(13000));
-        System.out.println(historyService.makeBet(13000, 5));
-        System.out.println("Players balance after bet = " + playerService.getBalance(13000));
-    }
+
 
     public void addPlayer() {
 
@@ -66,20 +62,14 @@ public class Test {
         System.out.println(gameService.addBalance(13000, 200));
     }
 
-
+//http://localhost:8080/BlackjackREST/rest/blackjack
 
     public static void main(String[] args) {
         Test test = new Test();
+        Integer playerId = gameService.registerPlayer(254);
+        Integer gameId = gameService.onGameStart(playerId);
+        System.out.println("player_id = " + playerId);
+        System.out.println("game_id = " + gameId);
 
-//        test.addPlayer(); id = 13000
-//        test.addBalance();
-//        test.makeBet();
-//        gameService.drawCards(23000);
-
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        URL[] urls = ((URLClassLoader)classLoader).getURLs();
-        for (URL url: urls) {
-            System.out.println(url.getFile());
-        }
     }
 }

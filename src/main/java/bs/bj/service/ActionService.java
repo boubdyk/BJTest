@@ -19,13 +19,13 @@ public class ActionService {
     @Inject
     private ActionDAO actionDAO;
 
-    public Integer addAction(String name, String description) {
-        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(description)) return null;
-        EAction eAction = new EAction();
-        eAction.setName(name);
-        eAction.setDescription(description);
-        return actionDAO.create(eAction);
-    }
+//    public Integer addAction(String name, String description) {
+//        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(description)) return null;
+//        EAction eAction = new EAction();
+//        eAction.setName(name);
+//        eAction.setDescription(description);
+//        return actionDAO.create(eAction);
+//    }
 
     //Returns action id by action name.
     public Integer getActionID(String actionName) {

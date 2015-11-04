@@ -30,15 +30,22 @@ public class EHistory {
     @Column(name = "game_id")
     private Integer gameId;
 
-    @Column(name = "card_weight")
-    private Integer cardWeight;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "id")
-//    private EGame eGame;
-    
-
     public EHistory(){}
+
+    public EHistory(Integer actionId, Integer playerId, Integer gameId) {
+        this.actionId = actionId;
+        this.playerId = playerId;
+        this.gameId = gameId;
+    }
+
+    public EHistory(Integer actionId, Integer playerId, Integer gameId, Integer bet) {
+        this.actionId = actionId;
+        this.playerId = playerId;
+        this.gameId = gameId;
+        this.bet = bet;
+    }
+
+
 
     public Integer getId() {
         return id;
@@ -88,19 +95,4 @@ public class EHistory {
         this.gameId = gameId;
     }
 
-    public Integer getCardWeight() {
-        return cardWeight;
-    }
-
-    public void setCardWeight(Integer cardWeight) {
-        this.cardWeight = cardWeight;
-    }
-
-//    public EGame geteGame() {
-//        return eGame;
-//    }
-//
-//    public void seteGame(EGame eGame) {
-//        this.eGame = eGame;
-//    }
 }
