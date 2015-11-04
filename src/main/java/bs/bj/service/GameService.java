@@ -56,6 +56,7 @@ public class GameService {
 
     //Method invokes when user is not registered in DB. Set user balance and return user id.
     public Integer registerPlayer(Integer balance) {
+        if (balance == null || balance.intValue() <= 0) return null;
         EPlayer newPlayer = new EPlayer(balance);
         return playerDAO.create(newPlayer);
     }

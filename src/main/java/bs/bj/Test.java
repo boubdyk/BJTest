@@ -6,6 +6,9 @@ import bs.bj.service.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+
 /**
  * Created by boubdyk on 30.10.2015.
  */
@@ -53,10 +56,13 @@ public class Test {
     }
 
     public void addPlayer() {
+
         gameService.registerPlayer(500);
     }
 
     public void addBalance() {
+
+
         System.out.println(gameService.addBalance(13000, 200));
     }
 
@@ -64,9 +70,16 @@ public class Test {
 
     public static void main(String[] args) {
         Test test = new Test();
+
 //        test.addPlayer(); id = 13000
 //        test.addBalance();
 //        test.makeBet();
-        gameService.drawCards(23000);
+//        gameService.drawCards(23000);
+
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        URL[] urls = ((URLClassLoader)classLoader).getURLs();
+        for (URL url: urls) {
+            System.out.println(url.getFile());
+        }
     }
 }
