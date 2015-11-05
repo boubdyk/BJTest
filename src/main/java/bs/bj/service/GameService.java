@@ -46,7 +46,11 @@ public class GameService {
     @Inject
     private ActionDAO actionDAO;
 
-    @Inject HistoryDAO historyDAO;
+    @Inject
+    private HistoryDAO historyDAO;
+
+    @Inject
+    private PlayerService playerService;
 
     public GameService() {}
 
@@ -163,43 +167,49 @@ public class GameService {
         return dealersDeck.cardsValue();
     }
 
+    private String playerWin(Integer gameId, Integer playerId, Integer bet, boolean isBlackjack) {
+        String result = ActionEnum.WIN.toString();
+        historyService.addHistory(playerId, gameId, actionDAO.getID(result));
+        EGame eGame = gameDAO.read(gameId);
+        int price = isBlackjack ? bet + bet * 3 / 2 : bet * 2;
+        eGame.setPrice(price);
+        addBalance(playerId, price);
+        eGame.setWinner("PLAYER");
+        eGame.setDateFinish(new Date());
+        gameDAO.update(eGame);
+        return result;
+    }
+
+    public String playerBusted(Integer gameId, Integer playerId) {
+        String result = ActionEnum.BUSTED.toString();
+        historyService.addHistory(playerId, gameId, actionDAO.getID(result));
+        EGame eGame = gameDAO.read(gameId);
+        eGame.setPrice(0);
+        eGame.setWinner("DEALER");
+        eGame.setDateFinish(new Date());
+        gameDAO.update(eGame);
+        return result;
+    }
+
+    private String roundPush(Integer gameId, Integer playerId, Integer bet) {
+        String result = ActionEnum.PUSH.toString();
+        historyService.addHistory(playerId, gameId, actionDAO.getID(result));
+        EGame eGame = gameDAO.read(gameId);
+        eGame.setPrice(bet);
+        addBalance(playerId, bet);
+        eGame.setWinner("PUSH");
+        eGame.setDateFinish(new Date());
+        gameDAO.update(eGame);
+        return result;
+    }
+
     public String gameRoundResult(Integer gameId, Integer playerId, Integer bet, boolean isBlackjack) {
-        String result;
-        EGame eGame;
-        if (dealersDeckScore(gameId) > playersDeckScore(gameId)) {
-            result = ActionEnum.BUSTED.toString();
-            historyService.addHistory(playerId, gameId, actionDAO.getID(result));
-            eGame = gameDAO.read(gameId);
-            eGame.setPrice(0);
-            eGame.setWinner("DEALER");
-            eGame.setDateFinish(new Date());
-            gameDAO.update(eGame);
-            return result;
-        } else if (dealersDeckScore(gameId) < playersDeckScore(gameId)) {
-            result = ActionEnum.WIN.toString();
-            historyService.addHistory(playerId, gameId, actionDAO.getID(result));
-            eGame = gameDAO.read(gameId);
-            int price = isBlackjack ? bet + bet * 3 / 2 : bet * 2;
-            eGame.setPrice(price);
-            addBalance(playerId, price);
-            eGame.setWinner("PLAYER");
-            eGame.setDateFinish(new Date());
-            gameDAO.update(eGame);
-            return result;
-            //Using == instead of equals() 'cause both parameters will be less then 128
-            //and pool of Integers will compare them correctly.
-        } else if (dealersDeckScore(gameId) == playersDeckScore(gameId)) {
-            result = ActionEnum.PUSH.toString();
-            historyService.addHistory(playerId, gameId, actionDAO.getID(result));
-            eGame = gameDAO.read(gameId);
-            eGame.setPrice(bet);
-            addBalance(playerId, bet);
-            eGame.setWinner("PUSH");
-            eGame.setDateFinish(new Date());
-            gameDAO.update(eGame);
-            return result;
-        }
-        return null;
+        if (dealersDeckScore(gameId) > 21) return playerWin(gameId, playerId, bet, isBlackjack);
+        if (playersDeckScore(gameId) > 21) return playerBusted(gameId, playerId);
+        if (dealersDeckScore(gameId) > playersDeckScore(gameId)) return playerBusted(gameId, playerId);
+        if (dealersDeckScore(gameId) < playersDeckScore(gameId)) return playerWin(gameId, playerId, bet, isBlackjack);
+        return roundPush(gameId, playerId, bet);
+
     }
 
     public boolean isRoundFinished(Integer gameId) {
@@ -209,6 +219,10 @@ public class GameService {
 
     public Integer getRoundsBet(Integer gameId, Integer playerId) {
         return historyDAO.getBet(gameId, playerId, actionDAO.getID("BET"));
+    }
+
+    public Integer getPlayersBalance(Integer playerId) {
+        return playerService.getBalance(playerId);
     }
 
 }

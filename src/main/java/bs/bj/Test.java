@@ -28,42 +28,6 @@ public class Test {
     }
 
 
-
-//    public void insertIntoActionTable() {
-//        actionService.addAction("BET", "Make a bet");
-//        actionService.addAction("HIT", "Draw one more card");
-//        actionService.addAction("STAND", "Finish current hand");
-//        actionService.addAction("BUST", "You lose tha hand");
-//        actionService.addAction("WIN", "You win the hand");
-//        actionService.addAction("PUSH", "You have the same score as dealer");
-//    }
-
-    public void addNewPlayer() {
-        playerService.addPlayer(200);
-    }
-
-    public void modifyBalance() {
-        System.out.println(playerService.modifyBalance(5000, 20));
-        System.out.println(playerService.modifyBalance(5000, -50));
-        System.out.println(playerService.modifyBalance(5000, -500));
-        System.out.println(playerService.modifyBalance(500, -500));
-    }
-
-
-
-    public void addPlayer() {
-
-        gameService.registerPlayer(500);
-    }
-
-    public void addBalance() {
-
-
-        System.out.println(gameService.addBalance(13000, 200));
-    }
-
-//http://localhost:8080/BlackjackREST/rest/blackjack
-
     public static void main(String[] args) {
         Test test = new Test();
         Integer playerId = gameService.registerPlayer(254);
@@ -72,4 +36,9 @@ public class Test {
         System.out.println("game_id = " + gameId);
 
     }
+
+//    {
+//        "gameId": 1580,
+//            "playerId": 1570
+//    }
 }

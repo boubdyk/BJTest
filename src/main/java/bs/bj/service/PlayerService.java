@@ -21,12 +21,12 @@ public class PlayerService {
     public PlayerService() {}
 
     // Modifies players balance if player win or lose. Returns new balance.
-    public Integer modifyBalance(Integer playerID, Integer bet) {
-        if (playerID == null || bet == null) return null;
+    public Integer modifyBalance(Integer playerID, Integer sum) {
+        if (playerID == null || sum == null) return null;
         EPlayer ePlayer = playerDAO.read(playerID);
         if (ePlayer == null) return null;
         Integer playerBalance = ePlayer.getBalance();
-        playerBalance += bet;
+        playerBalance += sum;
         if (playerBalance <= 0) return null;
         ePlayer.setBalance(playerBalance);
         playerDAO.update(ePlayer);

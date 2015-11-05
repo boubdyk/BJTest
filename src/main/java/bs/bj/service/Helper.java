@@ -11,6 +11,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import javax.inject.Named;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -39,6 +41,8 @@ public class Helper {
         }
     }
 
+
+    //Uses while firs two cards dealing.
     public JSONArray parseCardsToJSON(Map<EPlayersDeck, EDealersDeck> map) {
         JSONObject jsonCardItem;
         Card card;
@@ -53,4 +57,29 @@ public class Helper {
         }
         return returnJsonArray;
     }
+
+    public JSONArray parseDrawnCardToJSON(EPlayersDeck ePlayersDeck) {
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("cardSuit", ePlayersDeck.getCardSuit());
+        jsonArray.add(jsonObject);
+        jsonObject = new JSONObject();
+        jsonObject.put("cardFace", ePlayersDeck.getCardFace());
+        jsonArray.add(jsonObject);
+        return jsonArray;
+    }
+
+    public JSONArray parseDrawnCardToJSON(Map<EDealersDeck, Integer> dealersCardMap) {
+        JSONArray returnArray = new JSONArray();
+        JSONObject jsonObject = new JSONObject();
+        for (EDealersDeck item: dealersCardMap.keySet()) {
+            jsonObject.put("cardSuit", item.getCardSuit());
+            jsonObject.put("cardFace", item.getCardFace());
+            returnArray.add(jsonObject);
+        }
+        return returnArray;
+    }
+
+
+
 }

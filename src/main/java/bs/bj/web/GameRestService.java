@@ -5,14 +5,12 @@ import bs.bj.entity.EPlayersDeck;
 import bs.bj.service.GameService;
 import bs.bj.service.Helper;
 import bs.bj.service.HistoryService;
+import bs.bj.service.PlayerService;
 import org.json.simple.JSONObject;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
@@ -29,6 +27,7 @@ public class GameRestService {
     private static GameService gameService;
     private static HistoryService historyService;
     private static Helper helper;
+    private static PlayerService playerService;
 
     private final int MIN_BET = 5;
 
@@ -37,6 +36,7 @@ public class GameRestService {
         gameService = context.getBean(GameService.class);
         historyService = context.getBean(HistoryService.class);
         helper = context.getBean(Helper.class);
+        playerService = context.getBean(PlayerService.class);
     }
 
 
@@ -51,14 +51,14 @@ public class GameRestService {
         if (balance <= 0) return Response.status(Constants.CODE_NOT_MODIFIED).build();
 
         Integer playerId = gameService.registerPlayer(balance.intValue());
-        Integer gameId = gameService.onGameStart(playerId);
+//        Integer gameId = gameService.onGameStart(playerId);
 
-        if (gameId == null) {
+        if (playerId == null) {
             return Response.status(Constants.CODE_NOT_MODIFIED).build();
         } else {
             JSONObject returnObject = new JSONObject();
             returnObject.put("playerId", playerId);
-            returnObject.put("gameId", gameId);
+//            returnObject.put("gameId", gameId);
             return Response.status(Constants.CODE_CREATED).entity(returnObject).build();
         }
     }
@@ -106,51 +106,122 @@ public class GameRestService {
         }
     }
 
-
-    //TODO Change to GET and devide into two methods: "/hit" and "/stand"
-    //TODO Method for new game for registered player.
-    //TODO Method for adding balance for registered player.
-
-    @POST
-    @Path("/round")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @GET
+    @Path("/hit")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response continueRound(final String input) {
-        JSONObject inputObject = helper.parse(input);
-        Integer gameId = ((Long)inputObject.get("gameId")).intValue();
+    public Response playerHits(@QueryParam("gameId") final Long game,
+                                 @QueryParam("playerId") final Long player) {
+        Integer gameId = game.intValue();
+        Integer playerId = player.intValue();
         if (gameService.isRoundFinished(gameId)) {
             return Response.status(Constants.CODE_NOT_FOUND).build();
         }
-        Integer playerId = ((Long)inputObject.get("playerId")).intValue();
-        String playersAction = (String)inputObject.get("action");
+        Map<EPlayersDeck, Integer> playersCardMap = new HashMap<EPlayersDeck, Integer>();
+        Map<EPlayersDeck, Integer> tmpMap = gameService.drawCardForPlayer(gameId, playerId);
+        if (tmpMap == null) {
+            return Response.status(Constants.CODE_NOT_MODIFIED).build();
+        }
+        playersCardMap.put(tmpMap.keySet().iterator().next(), tmpMap.values().iterator().next());
+        //Update game state to recount players score.
+        gameService.updateGame(gameId);
+
+        String gameRoundResult;
+        boolean isRoundFinished;
+
+        Integer playersDeckScore = playersCardMap.values().iterator().next();
+
+        if (playersDeckScore > 21) {
+            gameRoundResult = gameService.playerBusted(gameId, playerId);
+            isRoundFinished = true;
+        } else {
+            gameRoundResult = "HIT/STAND";
+            isRoundFinished = false;
+        }
+
+        JSONObject returnObject = new JSONObject();
+        returnObject.put("drawnCard", helper.parseDrawnCardToJSON(playersCardMap.keySet().iterator().next()));
+        returnObject.put("playersDeckScore", playersDeckScore);
+        returnObject.put("isRoundFinished", isRoundFinished);
+        returnObject.put("gameRoundResult", gameRoundResult);
+        returnObject.put("newBalance", gameService.getPlayersBalance(playerId));
+        return Response.status(Constants.CODE_OK).entity(returnObject).build();
+    }
+
+    @GET
+    @Path("/stand")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response playerStands(@QueryParam("gameId") final Long game,
+                                   @QueryParam("playerId") final Long player) {
+        Integer gameId = game.intValue();
+        Integer playerId = player.intValue();
+        if (gameService.isRoundFinished(gameId)) {
+            return Response.status(Constants.CODE_NOT_FOUND).build();
+        }
 
         Map<EDealersDeck, Integer> dealersCardMap = new HashMap<EDealersDeck, Integer>();
-        Map<EPlayersDeck, Integer> playersCardMap = new HashMap<EPlayersDeck, Integer>();
-        if (playersAction.equals("STAND")) {
-            while (gameService.dealersDeckScore(gameId) <= 17) {
-                Map<EDealersDeck, Integer> tmpMap = gameService.drawCardForDealer(gameId, playerId);
-                dealersCardMap.put(tmpMap.keySet().iterator().next(), tmpMap.values().iterator().next());
-                //Update game state to recount dealers score.
-                gameService.updateGame(gameId);
+        Map<EDealersDeck, Integer> tmpMap;
+        while (gameService.dealersDeckScore(gameId) <= 17) {
+            tmpMap = gameService.drawCardForDealer(gameId, playerId);
+            if (tmpMap == null) {
+                return Response.status(Constants.CODE_NOT_MODIFIED).build();
             }
-        } else if (playersAction.equals("HIT")) {
-            Map<EPlayersDeck, Integer> tmpMap = gameService.drawCardForPlayer(gameId, playerId);
-            playersCardMap.put(tmpMap.keySet().iterator().next(), tmpMap.values().iterator().next());
+            dealersCardMap.put(tmpMap.keySet().iterator().next(), tmpMap.values().iterator().next());
             //Update game state to recount players score.
             gameService.updateGame(gameId);
         }
 
+
+
         String gameRoundResult = gameService.gameRoundResult(gameId, playerId, gameService.getRoundsBet(gameId, playerId), false);
-
-        boolean isRoundFinished = gameRoundResult == null ? false : true;
-
-        if (!isRoundFinished) {
-            gameRoundResult = "HIT/STAND";
-        }
-
         JSONObject returnObject = new JSONObject();
+        returnObject.put("isRoundFinished", true);
+        returnObject.put("gameRoundResult", gameRoundResult);
         returnObject.put("dealersDeckScore", gameService.dealersDeckScore(gameId));
-        returnObject.put("playersDeckScore", gameService.playersDeckScore(gameId));
+        returnObject.put("drawnCard", helper.parseDrawnCardToJSON(dealersCardMap));
+        returnObject.put("newBalance", gameService.getPlayersBalance(playerId));
+        return Response.status(Constants.CODE_OK).entity(returnObject).build();
+    }
 
+    //TODO Change to GET and devide into two methods: "/hit" and "/stand" DONEEEEEEEEEEEEEEEEE+++
+    //TODO Method for new game for registered player.
+    //TODO Method for adding balance for registered player.
+
+
+    @POST
+    @Path("/modifyBalance")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response modifyBalance(final String input) {
+        JSONObject inputObject = helper.parse(input);
+
+        Integer playerId = ((Long)inputObject.get("playerId")).intValue();
+        Integer sum = ((Long)inputObject.get("sum")).intValue();
+
+        Integer newBalance = playerService.modifyBalance(playerId, sum);
+
+        if (newBalance == null) {
+            return Response.status(Constants.CODE_NOT_MODIFIED).build();
+        } else {
+            JSONObject returnObject = new JSONObject();
+            returnObject.put("newBalance", newBalance);
+            return Response.status(Constants.CODE_CREATED).entity(returnObject).build();
+        }
+    }
+
+    @GET
+    @Path("/start")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response onGameStart(@QueryParam("playerId") final Long player) {
+        Integer playerId = player.intValue();
+
+        Integer gameId = gameService.onGameStart(playerId);
+
+        if (gameId == null) {
+            return Response.status(Constants.CODE_NOT_MODIFIED).build();
+        } else {
+            JSONObject returnObject = new JSONObject();
+            returnObject.put("gameId", gameId);
+            return Response.status(Constants.CODE_CREATED).entity(returnObject).build();
+        }
     }
 }

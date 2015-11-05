@@ -45,7 +45,7 @@ public class GameDAO implements GenericDAO<EGame, Integer> {
     }
 
     public String getWinner(Integer gameId) {
-        String query = "SELECT g.winner FROM EGame WHERE g.id=" + gameId;
+        String query = "SELECT g.winner FROM EGame g WHERE g.id=" + gameId;
         TypedQuery<String> result = entityManager.createQuery(query, String.class);
         return result.getSingleResult();
     }
