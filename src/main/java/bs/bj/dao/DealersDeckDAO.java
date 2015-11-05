@@ -43,7 +43,13 @@ public class DealersDeckDAO implements GenericDAO<EDealersDeck, Integer> {
         return read(persistentObjectID) == null ? true : false;
     }
 
-    //Return List of dealers cards for current game round.
+
+    /**
+     * This method is used to get list of all cards of dealer for current game.
+     *
+     * @param gameId unique game identifier.
+     * @return list of dealers cards for current game round.
+     */
     public List<EDealersDeck> getCards(Integer gameId) {
         String query = "SELECT d FROM EDealersDeck d WHERE d.gameId=" + gameId;
         TypedQuery<EDealersDeck> result = entityManager.createQuery(query, EDealersDeck.class);

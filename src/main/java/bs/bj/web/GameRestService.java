@@ -51,14 +51,12 @@ public class GameRestService {
         if (balance <= 0) return Response.status(Constants.CODE_NOT_MODIFIED).build();
 
         Integer playerId = gameService.registerPlayer(balance.intValue());
-//        Integer gameId = gameService.onGameStart(playerId);
 
         if (playerId == null) {
             return Response.status(Constants.CODE_NOT_MODIFIED).build();
         } else {
             JSONObject returnObject = new JSONObject();
             returnObject.put("playerId", playerId);
-//            returnObject.put("gameId", gameId);
             return Response.status(Constants.CODE_CREATED).entity(returnObject).build();
         }
     }
@@ -182,10 +180,6 @@ public class GameRestService {
         return Response.status(Constants.CODE_OK).entity(returnObject).build();
     }
 
-    //TODO Change to GET and devide into two methods: "/hit" and "/stand" DONEEEEEEEEEEEEEEEEE+++
-    //TODO Method for new game for registered player.
-    //TODO Method for adding balance for registered player.
-
 
     @POST
     @Path("/modifyBalance")
@@ -197,7 +191,7 @@ public class GameRestService {
         Integer playerId = ((Long)inputObject.get("playerId")).intValue();
         Integer sum = ((Long)inputObject.get("sum")).intValue();
 
-        Integer newBalance = playerService.modifyBalance(playerId, sum);
+        Integer newBalance = gameService.addBalance(playerId, sum);
 
         if (newBalance == null) {
             return Response.status(Constants.CODE_NOT_MODIFIED).build();

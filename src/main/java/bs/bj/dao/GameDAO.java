@@ -44,6 +44,12 @@ public class GameDAO implements GenericDAO<EGame, Integer> {
         return read(persistentObjectID) == null ? true : false;
     }
 
+    /**
+     * This method is used to get winner column from Game table for current game.
+     *
+     * @param gameId unique game identifier.
+     * @return winner column.
+     */
     public String getWinner(Integer gameId) {
         String query = "SELECT g.winner FROM EGame g WHERE g.id=" + gameId;
         TypedQuery<String> result = entityManager.createQuery(query, String.class);

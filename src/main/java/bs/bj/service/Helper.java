@@ -2,19 +2,16 @@ package bs.bj.service;
 
 import bs.bj.entity.EDealersDeck;
 import bs.bj.entity.EPlayersDeck;
-import bs.bj.logic.Card;
-import bs.bj.logic.Face;
-import bs.bj.logic.Suit;
+import bs.bj.deck.Card;
+import bs.bj.deck.Face;
+import bs.bj.deck.Suit;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import javax.inject.Named;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Created by boubdyk on 04.11.2015.

@@ -7,10 +7,10 @@ import bs.bj.dao.PlayingDeckDAO;
 import bs.bj.entity.EDealersDeck;
 import bs.bj.entity.EPlayersDeck;
 import bs.bj.entity.EPlayingDeck;
-import bs.bj.logic.Card;
-import bs.bj.logic.Deck;
-import bs.bj.logic.Face;
-import bs.bj.logic.Suit;
+import bs.bj.deck.Card;
+import bs.bj.deck.Deck;
+import bs.bj.deck.Face;
+import bs.bj.deck.Suit;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -27,9 +27,6 @@ public class PlayingDeckService {
 
     @Inject
     private PlayingDeckDAO playingDeckDAO;
-
-    @Inject
-    private GameDAO gameDAO;
 
     @Inject
     private DealersDeckDAO dealersDeckDAO;

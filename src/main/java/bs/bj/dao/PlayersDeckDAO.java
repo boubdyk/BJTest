@@ -44,7 +44,11 @@ public class PlayersDeckDAO implements GenericDAO<EPlayersDeck, Integer> {
         return read(persistentObjectID) == null ? true : false;
     }
 
-    //Return List of players cards for current game round.
+    /** Return List of players cards for current game round.
+     *
+     * @param gameId game identifier.
+     * @return list of players.
+     */
     public List<EPlayersDeck> getCards(Integer gameId) {
         String query = "SELECT d FROM EPlayersDeck d WHERE d.gameId=" + gameId;
         TypedQuery<EPlayersDeck> result = entityManager.createQuery(query, EPlayersDeck.class);

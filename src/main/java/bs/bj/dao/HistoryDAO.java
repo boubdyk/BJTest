@@ -43,6 +43,14 @@ public class HistoryDAO implements GenericDAO<EHistory, Integer> {
         return read(persistentObjectID) == null ? true : false;
     }
 
+    /**
+     * This method is used to get bet columb from table History for current user and his current game round.
+     *
+     * @param gameId game round identifier.
+     * @param playerId player identifier.
+     * @param actionId action identifier.
+     * @return bet column.
+     */
     public Integer getBet(Integer gameId, Integer playerId, Integer actionId) {
         String query = "SELECT h.bet FROM EHistory h WHERE h.gameId=" + gameId +
                 " AND h.playerId=" + playerId +

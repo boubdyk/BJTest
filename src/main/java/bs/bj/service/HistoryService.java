@@ -22,6 +22,13 @@ public class HistoryService {
 
     public HistoryService() {}
 
+    /**
+     * Used to add row to table History.
+     * @param playerId players identifier.
+     * @param gameId game round identifier.
+     * @param actionId action identifier.
+     * @return id of new row in table History.
+     */
     public Integer addHistory(Integer playerId, Integer gameId, Integer actionId) {
         EHistory eHistory = new EHistory(actionId, playerId, gameId);
         return historyDAO.create(eHistory);

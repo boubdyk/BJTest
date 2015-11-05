@@ -2,19 +2,16 @@ package bs.bj.service;
 
 import bs.bj.dao.*;
 import bs.bj.entity.*;
-import bs.bj.logic.Card;
-import bs.bj.logic.Deck;
-import bs.bj.logic.Face;
-import bs.bj.logic.Suit;
+import bs.bj.deck.Card;
+import bs.bj.deck.Deck;
+import bs.bj.deck.Face;
+import bs.bj.deck.Suit;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,19 +51,32 @@ public class GameService {
 
     public GameService() {}
 
-
+    /**
+     * Method checks if input data is valid.
+     * @param gameId game round identifier.
+     * @return true if data valid or false if doesn't.
+     */
     boolean isValidID(Integer gameId) {
         return (gameId == null || gameDAO.read(gameId) == null) ? false : true;
     }
 
-    //Method invokes when user is not registered in DB. Set user balance and return user id.
+    /**
+     * Method invokes when user is not registered in DB. Set players balance and return user id.
+     * @param balance players balance.
+     * @return players unique identifier.
+     */
     public Integer registerPlayer(Integer balance) {
         if (balance == null || balance.intValue() <= 0) return null;
         EPlayer newPlayer = new EPlayer(balance);
         return playerDAO.create(newPlayer);
     }
 
-    //Return new balance.
+    /**
+     * Invokes when user add balance. Return new balance.
+     * @param playerId
+     * @param balance
+     * @return new balance.
+     */
     public Integer addBalance(Integer playerId, Integer balance) {
         EPlayer player = playerDAO.read(playerId);
         Integer newBalance = player.getBalance() + balance;
@@ -76,7 +86,13 @@ public class GameService {
         return player.getBalance();
     }
 
-    //Player make bet. Return true if bet is valid else return false. Returns new balance.
+    /**
+     * Invokes when player make a bet. Return true if bet is valid else return false. Returns new balance.
+     * @param gameId game round identifier.
+     * @param playerID player identifier.
+     * @param bet money that player wants to bet.
+     * @return new players balance (players balance - bet).
+     */
     public Integer makeBet(Integer gameId, Integer playerID, Integer bet) {
         if (playerID == null || bet == null || bet <= 0) return null;
         EPlayer ePlayer = playerDAO.read(playerID);
@@ -92,7 +108,11 @@ public class GameService {
         return ePlayer.getBalance();
     }
 
-    //Executes when new game round start. Return gameId.
+    /**
+     * Invokes when new game round start. Return gameId.
+     * @param playerId player identifier.
+     * @return game identifier.
+     */
     public Integer onGameStart(Integer playerId) {
         if (playerId == null) return null;
         EPlayer ePlayer = playerDAO.read(playerId);
@@ -105,7 +125,11 @@ public class GameService {
         return gameId;
     }
 
-    //Draw first two cards for player and dealer. Set cards values.
+    /**
+     * Draw first two cards for player and dealer. Set cards values.
+     * @param gameId game identifier.
+     * @return Map of players cards as key and dealers cards as values.
+     */
     public Map<EPlayersDeck, EDealersDeck> drawCards(Integer gameId) {
         Map<EPlayersDeck, EDealersDeck> resultMap = new HashMap<EPlayersDeck, EDealersDeck>();
         resultMap.put(playingDeckService.drawCardForPlayer(gameId), playingDeckService.drawCardForDealer(gameId));
@@ -114,7 +138,11 @@ public class GameService {
         return resultMap;
     }
 
-    //This method is used to update 2 fields in table Game: playersScore and dealersScore.
+    /**
+     * This method is used to update 2 fields in table Game: playersScore and dealersScore.
+     * @param gameId game round identifier.
+     * @return Map of players score as key and dealers score as value.
+     */
     public Map<Integer, Integer> updateGame(Integer gameId) {
         EGame eGame = gameDAO.read(gameId);
         eGame.setPlayerScore(playersDeckScore(gameId));
@@ -124,7 +152,12 @@ public class GameService {
     }
 
 
-    //If player Hits than draw card for him. Return Map of card and total cards value.
+    /**
+     * If player Hits than draw card for him. Return Map of card and total cards value.
+     * @param gameId
+     * @param playerId
+     * @return Map of drawn card as key and total score of players deck as value.
+     */
     public Map<EPlayersDeck, Integer> drawCardForPlayer(Integer gameId, Integer playerId) {
         if (gameId == null || gameDAO.read(gameId) == null) return null;
         EPlayersDeck ePlayersDeck = playingDeckService.drawCardForPlayer(gameId);
@@ -135,7 +168,12 @@ public class GameService {
     }
 
 
-    //If player stands than dealer draws card for himself. Return Map of card and total cards value.
+    /**
+     * If player stands than dealer draws card for himself. Return Map of card and total cards value.
+     * @param gameId game round identifier.
+     * @param playerId
+     * @return Map of dealers drawn card as key and total dealers deck score as value.
+     */
     public Map<EDealersDeck, Integer> drawCardForDealer(Integer gameId, Integer playerId) {
         if (!isValidID(gameId)) return null;
         EDealersDeck eDealersDeck = playingDeckService.drawCardForDealer(gameId);
@@ -146,7 +184,11 @@ public class GameService {
     }
 
 
-    //Used in two methods:
+    /**
+     * Used to get players deck score in current game round.
+     * @param gameId game round identifier.
+     * @return deck score.
+     */
     public Integer playersDeckScore(Integer gameId) {
         Deck playersDeck = new Deck();
         Card card;
@@ -157,6 +199,11 @@ public class GameService {
         return playersDeck.cardsValue();
     }
 
+    /**
+     * Used to get dealers deck score in current game round.
+     * @param gameId game round identifier.
+     * @return deck score.
+     */
     public Integer dealersDeckScore(Integer gameId) {
         Deck dealersDeck = new Deck();
         Card card;
@@ -167,6 +214,15 @@ public class GameService {
         return dealersDeck.cardsValue();
     }
 
+    /**
+     * Invokes in method gameRoundResult to set data(new balance, action) to DB if player wins.
+     * @param gameId game round identifier.
+     * @param playerId players identifier.
+     * @param bet players bet for current game round.
+     * @param isBlackjack boolean value. Takes true only after dealer draw first two cards for himself and
+     *                    for player.
+     * @return action. ("WIN")
+     */
     private String playerWin(Integer gameId, Integer playerId, Integer bet, boolean isBlackjack) {
         String result = ActionEnum.WIN.toString();
         historyService.addHistory(playerId, gameId, actionDAO.getID(result));
@@ -180,6 +236,12 @@ public class GameService {
         return result;
     }
 
+    /**
+     * Invokes to put data to DB if player lose.
+     * @param gameId game round identifier.
+     * @param playerId player identifier.
+     * @return action. ("BUSTED")
+     */
     public String playerBusted(Integer gameId, Integer playerId) {
         String result = ActionEnum.BUSTED.toString();
         historyService.addHistory(playerId, gameId, actionDAO.getID(result));
@@ -191,6 +253,13 @@ public class GameService {
         return result;
     }
 
+    /**
+     * Invokes to set data to DB if dealer has the same score as player.
+     * @param gameId game roung identifier.
+     * @param playerId player identifier.
+     * @param bet money that player bet.
+     * @return action. ("PUSH")
+     */
     private String roundPush(Integer gameId, Integer playerId, Integer bet) {
         String result = ActionEnum.PUSH.toString();
         historyService.addHistory(playerId, gameId, actionDAO.getID(result));
@@ -203,6 +272,15 @@ public class GameService {
         return result;
     }
 
+    /**
+     * Used to get result of current game round. Returns the winner.
+     * @param gameId game ound identifier.
+     * @param playerId player identifier.
+     * @param bet bet.
+     * @param isBlackjack boolean value. Takes true only after dealer draw first two cards for himself and
+     *                    for player.
+     * @return winner. ("PLAYER", "DEALER", "PUSH")
+     */
     public String gameRoundResult(Integer gameId, Integer playerId, Integer bet, boolean isBlackjack) {
         if (dealersDeckScore(gameId) > 21) return playerWin(gameId, playerId, bet, isBlackjack);
         if (playersDeckScore(gameId) > 21) return playerBusted(gameId, playerId);
@@ -212,15 +290,32 @@ public class GameService {
 
     }
 
+    /**
+     * Used to check if game round has been finished.
+     * @param gameId game round identifier.
+     * @return true if round has been finished and false if it doesn't
+     */
     public boolean isRoundFinished(Integer gameId) {
         if (gameId == null || gameDAO.read(gameId) == null) return true;
         return gameDAO.getWinner(gameId) == null ? false : true;
     }
 
+    /**
+     * Used to get players bet for current game round. Method doesn't check input values because it invokes
+     * from place where all checking has been made.
+     * @param gameId game round identifier.
+     * @param playerId players identifier.
+     * @return bet.
+     */
     public Integer getRoundsBet(Integer gameId, Integer playerId) {
         return historyDAO.getBet(gameId, playerId, actionDAO.getID("BET"));
     }
 
+    /**
+     * Used to get players current balance.
+     * @param playerId player identifier.
+     * @return players balance.
+     */
     public Integer getPlayersBalance(Integer playerId) {
         return playerService.getBalance(playerId);
     }
