@@ -15,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -84,24 +85,72 @@ public class GameRestService {
             Integer playersDeckscore = gameService.playersDeckScore(gameId);
             Integer dealersDeckScore = gameService.dealersDeckScore(gameId);
 
-            //Checking if player have Blackjack!!!
-            boolean isRoundFinished = false;
+            //Checking if there's Blackjack on the table!!!
+            boolean isBlackjack = (playersDeckscore == 21 || dealersDeckScore == 21) ? true : false;
+            String gameRoundResult = isBlackjack ? gameService.gameRoundResult(gameId, playerId, bet, isBlackjack) : null;
 
-            if (playersDeckscore == 21 && dealersDeckScore == 21) {
-                newBalance = gameService.addBalance(playerId, bet);
-                gameService.
-                isRoundFinished = true;
-            } else if (playersDeckscore == 21 && dealersDeckScore != 21) {
-                newBalance = gameService.addBalance(playerId, bet * 3 / 2);
+            boolean isRoundFinished = gameRoundResult == null ? false : true;
+
+            if (!isRoundFinished) {
+                gameRoundResult = "HIT/STAND";
             }
-
 
             JSONObject returnObject = new JSONObject();
             returnObject.put("newBalance", newBalance);
             returnObject.put("cards", helper.parseCardsToJSON(cardsMap));
             returnObject.put("playersDeckScore", playersDeckscore);
             returnObject.put("dealersDeckScore", dealersDeckScore);
+            returnObject.put("gameRoundResult", gameRoundResult);
+            returnObject.put("isRoundFinished", isRoundFinished);
             return Response.status(Constants.CODE_CREATED).entity(returnObject).build();
         }
+    }
+
+
+    //TODO Change to GET and devide into two methods: "/hit" and "/stand"
+    //TODO Method for new game for registered player.
+    //TODO Method for adding balance for registered player.
+
+    @POST
+    @Path("/round")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response continueRound(final String input) {
+        JSONObject inputObject = helper.parse(input);
+        Integer gameId = ((Long)inputObject.get("gameId")).intValue();
+        if (gameService.isRoundFinished(gameId)) {
+            return Response.status(Constants.CODE_NOT_FOUND).build();
+        }
+        Integer playerId = ((Long)inputObject.get("playerId")).intValue();
+        String playersAction = (String)inputObject.get("action");
+
+        Map<EDealersDeck, Integer> dealersCardMap = new HashMap<EDealersDeck, Integer>();
+        Map<EPlayersDeck, Integer> playersCardMap = new HashMap<EPlayersDeck, Integer>();
+        if (playersAction.equals("STAND")) {
+            while (gameService.dealersDeckScore(gameId) <= 17) {
+                Map<EDealersDeck, Integer> tmpMap = gameService.drawCardForDealer(gameId, playerId);
+                dealersCardMap.put(tmpMap.keySet().iterator().next(), tmpMap.values().iterator().next());
+                //Update game state to recount dealers score.
+                gameService.updateGame(gameId);
+            }
+        } else if (playersAction.equals("HIT")) {
+            Map<EPlayersDeck, Integer> tmpMap = gameService.drawCardForPlayer(gameId, playerId);
+            playersCardMap.put(tmpMap.keySet().iterator().next(), tmpMap.values().iterator().next());
+            //Update game state to recount players score.
+            gameService.updateGame(gameId);
+        }
+
+        String gameRoundResult = gameService.gameRoundResult(gameId, playerId, gameService.getRoundsBet(gameId, playerId), false);
+
+        boolean isRoundFinished = gameRoundResult == null ? false : true;
+
+        if (!isRoundFinished) {
+            gameRoundResult = "HIT/STAND";
+        }
+
+        JSONObject returnObject = new JSONObject();
+        returnObject.put("dealersDeckScore", gameService.dealersDeckScore(gameId));
+        returnObject.put("playersDeckScore", gameService.playersDeckScore(gameId));
+
     }
 }

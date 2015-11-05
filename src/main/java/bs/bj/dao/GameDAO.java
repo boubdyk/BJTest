@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 /**
@@ -43,4 +44,9 @@ public class GameDAO implements GenericDAO<EGame, Integer> {
         return read(persistentObjectID) == null ? true : false;
     }
 
+    public String getWinner(Integer gameId) {
+        String query = "SELECT g.winner FROM EGame WHERE g.id=" + gameId;
+        TypedQuery<String> result = entityManager.createQuery(query, String.class);
+        return result.getSingleResult();
+    }
 }

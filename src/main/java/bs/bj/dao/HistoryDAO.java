@@ -2,9 +2,11 @@ package bs.bj.dao;
 
 import bs.bj.entity.EHistory;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 
 /**
  * Created by boubdyk on 30.10.2015.
@@ -41,5 +43,11 @@ public class HistoryDAO implements GenericDAO<EHistory, Integer> {
         return read(persistentObjectID) == null ? true : false;
     }
 
-
+    public Integer getBet(Integer gameId, Integer playerId, Integer actionId) {
+        String query = "SELECT h.bet FROM EHistory h WHERE h.gameId=" + gameId +
+                " AND h.playerId=" + playerId +
+                " AND h.actionId=" + actionId;
+        TypedQuery<Integer> result = entityManager.createQuery(query, Integer.class);
+        return result.getSingleResult();
+    }
 }

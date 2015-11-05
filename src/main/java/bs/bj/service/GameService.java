@@ -111,7 +111,7 @@ public class GameService {
     }
 
     //This method is used to update 2 fields in table Game: playersScore and dealersScore.
-    private Map<Integer, Integer> updateGame(Integer gameId) {
+    public Map<Integer, Integer> updateGame(Integer gameId) {
         EGame eGame = gameDAO.read(gameId);
         eGame.setPlayerScore(playersDeckScore(gameId));
         eGame.setDealerScore(dealersDeckScore(gameId));
@@ -163,9 +163,7 @@ public class GameService {
         return dealersDeck.cardsValue();
     }
 
-
-
-    public String gameRfoundResult(Integer gameId, Integer playerId, Integer bet) {
+    public String gameRoundResult(Integer gameId, Integer playerId, Integer bet, boolean isBlackjack) {
         String result;
         EGame eGame;
         if (dealersDeckScore(gameId) > playersDeckScore(gameId)) {
@@ -175,17 +173,21 @@ public class GameService {
             eGame.setPrice(0);
             eGame.setWinner("DEALER");
             eGame.setDateFinish(new Date());
+            gameDAO.update(eGame);
             return result;
         } else if (dealersDeckScore(gameId) < playersDeckScore(gameId)) {
             result = ActionEnum.WIN.toString();
             historyService.addHistory(playerId, gameId, actionDAO.getID(result));
             eGame = gameDAO.read(gameId);
-            int price = bet * 2;
+            int price = isBlackjack ? bet + bet * 3 / 2 : bet * 2;
             eGame.setPrice(price);
             addBalance(playerId, price);
             eGame.setWinner("PLAYER");
             eGame.setDateFinish(new Date());
+            gameDAO.update(eGame);
             return result;
+            //Using == instead of equals() 'cause both parameters will be less then 128
+            //and pool of Integers will compare them correctly.
         } else if (dealersDeckScore(gameId) == playersDeckScore(gameId)) {
             result = ActionEnum.PUSH.toString();
             historyService.addHistory(playerId, gameId, actionDAO.getID(result));
@@ -194,12 +196,19 @@ public class GameService {
             addBalance(playerId, bet);
             eGame.setWinner("PUSH");
             eGame.setDateFinish(new Date());
+            gameDAO.update(eGame);
             return result;
         }
         return null;
     }
 
-    public String checkingForBlackjack(Integer gameId, ) {
-
+    public boolean isRoundFinished(Integer gameId) {
+        if (gameId == null || gameDAO.read(gameId) == null) return true;
+        return gameDAO.getWinner(gameId) == null ? false : true;
     }
+
+    public Integer getRoundsBet(Integer gameId, Integer playerId) {
+        return historyDAO.getBet(gameId, playerId, actionDAO.getID("BET"));
+    }
+
 }
